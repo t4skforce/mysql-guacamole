@@ -11,7 +11,7 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /tmp/
 RUN apt-get update -qqy \
-  && apt-get -qqy --no-install-recommends install curl \
+  && apt-get -qqy install curl \
   && curl -Ls ${DOWNLOADURL} --output guacamole-client.tar.gz \
   && tar -zxf /tmp/guacamole-client.tar.gz \
   && rm guacamole-client.tar.gz \
