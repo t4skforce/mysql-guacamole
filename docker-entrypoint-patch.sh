@@ -28,6 +28,9 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
       echo >&2 'MySQL update process failed.'
       exit 1
     fi
+    
+    # to run update scripts even if parts fail
+    mysql+=( "--force" )
 
     file_env 'MYSQL_DATABASE'
     if [ "$MYSQL_DATABASE" ]; then
