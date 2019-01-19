@@ -12,21 +12,21 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 
     mysql=( mysql --protocol=socket -uroot -hlocalhost --socket="${SOCKET}" )
     
-    for i in {30..0}; do
-			if echo 'SELECT 1' | "${mysql[@]}" &> /dev/null; then
-				break
-			fi
-			echo 'MySQL update process in progress...'
-			sleep 1
-		done
-		if [ "$i" = 0 ]; then
-			echo >&2 'MySQL update process failed.'
-			exit 1
-		fi
-  
     file_env 'MYSQL_ROOT_PASSWORD'
     if [ ! -z "$MYSQL_ROOT_PASSWORD" ]; then
       mysql+=( -p"${MYSQL_ROOT_PASSWORD}" )
+    fi
+    
+    for i in {30..0}; do
+      if echo 'SELECT 1' | "${mysql[@]}" &> /dev/null; then
+        break
+      fi
+      echo 'MySQL update process in progress...'
+      sleep 1
+    done
+    if [ "$i" = 0 ]; then
+      echo >&2 'MySQL update process failed.'
+      exit 1
     fi
 
     file_env 'MYSQL_DATABASE'
