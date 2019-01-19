@@ -8,6 +8,7 @@ for filename in ./schema/upgrade/upgrade-pre-*.sql; do
 done
 
 # generate init.sql so upgrades are not run after init
+mkdir -p /docker-entrypoint-initdb.d/
 echo "CREATE TABLE IF NOT EXISTS \`auto_updates\` (\`hash\` varchar(32) NOT NULL UNIQUE) ENGINE=InnoDB DEFAULT CHARSET=utf8;" > /docker-entrypoint-initdb.d/999-upgrade.sql
 for f in /docker-entrypoint-upgrade.d/*; do
   md5=$(md5sum "${f}" | awk '{ print $1 }')
