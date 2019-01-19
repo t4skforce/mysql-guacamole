@@ -16,7 +16,8 @@ RUN apt-get update -qqy \
   && curl -Ls ${DOWNLOADURL} --output guacamole-client.tar.gz \
   && tar -zxf /tmp/guacamole-client.tar.gz \
   && rm guacamole-client.tar.gz \
-  && cp /tmp/guacamole-client-*/extensions/guacamole-auth-jdbc/modules/guacamole-auth-jdbc-mysql/schema/*.sql /docker-entrypoint-initdb.d/ \
+  && cd /tmp/guacamole-client-*/extensions/guacamole-auth-jdbc/modules/guacamole-auth-jdbc-mysql/ \
+  && cp ./schema/*.sql /docker-entrypoint-initdb.d/ \
   && chmod +x /tmp/upgrade.sh && /tmp/upgrade.sh \
   && echo 'sed -i "1i USE $MYSQL_DATABASE;" /docker-entrypoint-initdb.d/*.sql' > /docker-entrypoint-initdb.d/000-use-database.sh \
   && chmod 777 -R /docker-entrypoint-initdb.d/ \
