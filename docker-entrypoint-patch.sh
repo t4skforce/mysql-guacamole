@@ -51,8 +51,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
             echo "INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" | "${mysql[@]}" &> /dev/null
           else
             echo "$0: already ran $f ignoring"
-          fi
-          echo 
+          fi 
         ;;
         *.sql)
 	  md5=$(md5sum "${f}" | awk '{ print $1 }')
@@ -63,7 +62,6 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
           else
             echo "$0: already ran $f ignoring"
           fi 
-          echo 
         ;;
         *.sql.gz)
 	  md5=$(md5sum "${f}" | awk '{ print $1 }')
@@ -74,13 +72,11 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
           else
             echo "$0: already ran $f ignoring"
           fi
-          echo 
         ;;
         *)        
           echo "$0: ignoring $f" 
         ;;
       esac
-      echo
     done
   
     if ! kill -s TERM "$pid" || ! wait "$pid"; then
