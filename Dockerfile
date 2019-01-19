@@ -11,8 +11,6 @@ ARG DEBIAN_FRONTEND=noninteractive
 
 WORKDIR /tmp/
 COPY /prepare-upgrade.sh /tmp/prepare-upgrade.sh
-COPY /docker-entrypoint-initdb.d/000-use-database.sh /docker-entrypoint-initdb.d/000-use-database.sh
-COPY /docker-entrypoint-upgrade.d/000-use-database.sh /docker-entrypoint-upgrade.d/000-use-database.sh
 COPY /docker-entrypoint-patch.sh /tmp/docker-entrypoint-patch.sh
 RUN apt-get update -qqy \
   && apt-get -qqy install curl \
