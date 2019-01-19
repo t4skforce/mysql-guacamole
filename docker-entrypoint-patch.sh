@@ -48,7 +48,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
             echo "$0: running $f";
             . "$f"
 	    rm "$f"
-            echo "INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" | "${mysql[@]} | tail -1" &> /dev/null
+            echo "INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" | "${mysql[@]}" &> /dev/null
           else
             echo "$0: already ran $f ignoring"
           fi
