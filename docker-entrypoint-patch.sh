@@ -44,11 +44,11 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
       case "$f" in
         *.sh)
 	  md5=$(md5sum "${f}" | awk '{ print $1 }')
-          if [ $(echo "SELECT count(1) FROM auto_updates WHERE hash='${md5}';" | "${mysql[@]}") = "0" ]; then
+          if [ $(echo "SELECT count(1) FROM auto_updates WHERE hash='${md5}';" | "${mysql[@]}" | tail -1) -eq 0 ]; then
             echo "$0: running $f";
             . "$f"
 	    rm "$f"
-            echo "INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" | "${mysql[@]}" &> /dev/null
+            echo "INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" | "${mysql[@]} | tail -1" &> /dev/null
           else
             echo "$0: already ran $f ignoring"
           fi
@@ -56,7 +56,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
         ;;
         *.sql)
 	  md5=$(md5sum "${f}" | awk '{ print $1 }')
-          if [ $(echo "SELECT count(1) FROM auto_updates WHERE hash='${md5}';" | "${mysql[@]}") = "0" ]; then
+          if [ $(echo "SELECT count(1) FROM auto_updates WHERE hash='${md5}';" | "${mysql[@]}" | tail -1) -eq 0 ]; then
             echo "$0: running $f";
             "${mysql[@]}" < "$f";
             echo "INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" | "${mysql[@]}" &> /dev/null
@@ -67,7 +67,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
         ;;
         *.sql.gz)
 	  md5=$(md5sum "${f}" | awk '{ print $1 }')
-          if [ $(echo "SELECT count(1) FROM auto_updates WHERE hash='${md5}';" | "${mysql[@]}") = "0" ]; then
+          if [ $(echo "SELECT count(1) FROM auto_updates WHERE hash='${md5}';" | "${mysql[@]}" | tail -1) -eq 0 ]; then
             echo "$0: running $f";
             gunzip -c "$f" | "${mysql[@]}";
             echo "INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" | "${mysql[@]}" &> /dev/null
