@@ -47,10 +47,9 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
           if [ $(echo "SELECT count(1) FROM auto_updates WHERE hash='${md5}';" | "${mysql[@]}" | tail -1) -eq 0 ]; then
             echo "$0: running $f";
             . "$f"
-	    rm "$f"
             echo "INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" | "${mysql[@]}" &> /dev/null
           else
-            echo "$0: already ran $f ignoring"
+            echo "$0: already imported $f ignoring"
           fi 
         ;;
         *.sql)
@@ -60,7 +59,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
             "${mysql[@]}" < "$f";
             echo "INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" | "${mysql[@]}" &> /dev/null
           else
-            echo "$0: already ran $f ignoring"
+            echo "$0: already imported $f ignoring"
           fi 
         ;;
         *.sql.gz)
@@ -70,7 +69,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
             gunzip -c "$f" | "${mysql[@]}";
             echo "INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" | "${mysql[@]}" &> /dev/null
           else
-            echo "$0: already ran $f ignoring"
+            echo "$0: already imported $f ignoring"
           fi
         ;;
         *)        
