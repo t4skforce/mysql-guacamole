@@ -7,7 +7,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
   for f in /docker-entrypoint-upgrade.d/*; do
     case "$f" in
       *.sh)
-        if [ $(echo "SELECT count(1) FROM auto_updates WHERE scriptname='${f}';" | "${mysql[@]}") -eq 0 ]; then
+        if [ $(echo "SELECT count(1) FROM auto_updates WHERE scriptname='${f}';" | "${mysql[@]}") = "0" ]; then
           echo "$0: running $f";
           . "$f"
           echo "INSERT INTO auto_updates (scriptname) VALUES ('${f}');" | "${mysql[@]}"
@@ -17,7 +17,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
         echo 
       ;;
       *.sql)
-        if [ $(echo "SELECT count(1) FROM auto_updates WHERE scriptname='${f}';" | "${mysql[@]}") -eq 0 ]; then
+        if [ $(echo "SELECT count(1) FROM auto_updates WHERE scriptname='${f}';" | "${mysql[@]}") = "0" ]; then
           echo "$0: running $f";
           "${mysql[@]}" < "$f";
           echo "INSERT INTO auto_updates (scriptname) VALUES ('${f}');" | "${mysql[@]}"
@@ -27,7 +27,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
         echo 
       ;;
       *.sql.gz)
-        if [ $(echo "SELECT count(1) FROM auto_updates WHERE scriptname='${f}';" | "${mysql[@]}") -eq 0 ]; then
+        if [ $(echo "SELECT count(1) FROM auto_updates WHERE scriptname='${f}';" | "${mysql[@]}") = "0" ]; then
           echo "$0: running $f";
           gunzip -c "$f" | "${mysql[@]}";
           echo "INSERT INTO auto_updates (scriptname) VALUES ('${f}');" | "${mysql[@]}"
