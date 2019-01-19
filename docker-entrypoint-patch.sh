@@ -1,7 +1,17 @@
 
 if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
-	# still need to check config, container may have started with --user
-	_check_config "$@"
+  # still need to check config, container may have started with --user
+  _check_config "$@"
+  
+  if [ ! -z "$MYSQL_ROOT_PASSWORD" ]; then
+    mysql+=( -p"${MYSQL_ROOT_PASSWORD}" )
+  fi
+
+  file_env 'MYSQL_DATABASE'
+  if [ "$MYSQL_DATABASE" ]; then
+    echo "CREATE DATABASE IF NOT EXISTS \`$MYSQL_DATABASE\` ;" | "${mysql[@]}"
+    mysql+=( "$MYSQL_DATABASE" )
+  fi
   
   echo 'Upgrading database'
   for f in /docker-entrypoint-upgrade.d/*; do
