@@ -3,6 +3,12 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
   # still need to check config, container may have started with --user
   _check_config "$@"
   
+  SOCKET="$(_get_config 'socket' "$@")"
+  "$@" --skip-networking --socket="${SOCKET}" &
+  pid="$!"
+
+  mysql=( mysql --protocol=socket -uroot -hlocalhost --socket="${SOCKET}" )
+  
   if [ ! -z "$MYSQL_ROOT_PASSWORD" ]; then
     mysql+=( -p"${MYSQL_ROOT_PASSWORD}" )
   fi
@@ -52,6 +58,11 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
     esac
     echo
   done
+  
+  if ! kill -s TERM "$pid" || ! wait "$pid"; then
+    echo >&2 'MySQL update process failed.'
+    exit 1
+  fi
   
   echo
   echo 'MySQL update process done. Ready for start up.'
