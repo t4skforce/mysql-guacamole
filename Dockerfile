@@ -20,7 +20,8 @@ RUN apt-get update -qqy \
   && cp ./schema/*.sql /docker-entrypoint-initdb.d/ \
   && chmod +x /tmp/prepare-upgrade.sh && /tmp/prepare-upgrade.sh \
   && echo 'sed -i "1i USE $MYSQL_DATABASE;" /docker-entrypoint-initdb.d/*.sql' > /docker-entrypoint-initdb.d/000-use-database.sh \
-  && chmod 777 -R /docker-entrypoint-initdb.d/ \
+  && cp /docker-entrypoint-initdb.d/000-use-database.sh /docker-entrypoint-upgrade.d/000-use-database.sh \
+  && chmod 777 -R /docker-entrypoint-initdb.d/ /docker-entrypoint-upgrade.d/ \
   && apt-get --auto-remove -y purge curl \
   && rm -rf /tmp/* \
   && rm -rf /var/lib/apt/lists/*
