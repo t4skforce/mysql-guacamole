@@ -37,7 +37,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
       mysql+=( "$MYSQL_DATABASE" )
     fi
     
-    echo "CREATE TABLE IF NOT EXISTS \`auto_updates\` (`hash` CHAR(32) NOT NULL UNIQUE) ENGINE=InnoDB DEFAULT CHARSET=utf8;" | "${mysql[@]}"
+    echo "CREATE TABLE IF NOT EXISTS \`auto_updates\` (\`hash\` varchar(32) NOT NULL UNIQUE) ENGINE=InnoDB DEFAULT CHARSET=utf8;" | "${mysql[@]}"
   
     echo 'Upgrading database'
     for f in /docker-entrypoint-upgrade.d/*; do
