@@ -26,7 +26,6 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
     done
     if [ "$i" = 0 ]; then
       echo >&2 'MySQL update process failed.'
-      exit 1
     fi
     
     # to run update scripts even if parts fail
@@ -86,7 +85,6 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
   
     if ! kill -s TERM "$pid" || ! wait "$pid"; then
       echo >&2 'MySQL update process failed.'
-      exit 1
     fi
   
     echo
