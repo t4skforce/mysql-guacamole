@@ -118,7 +118,10 @@ docker_temp_server_start() {
 	for i in {30..0}; do
 		# only use the root password if the database has already been initializaed
 		# so that it won't try to fill in a password file when it hasn't been set yet
-		extraArgs=( '--dont-use-mysql-root-password' )
+		extraArgs=()
+		if [ -z "$DATABASE_ALREADY_EXISTS" ]; then
+			extraArgs+=( '--dont-use-mysql-root-password' )
+		fi
 		if docker_process_sql "${extraArgs[@]}" --database=mysql <<<'SELECT 1' &> /dev/null; then
 			break
 		fi
@@ -225,7 +228,7 @@ docker_setup_db() {
 	fi
 	# Generate random root password
 	if [ -n "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
-		export MYSQL_ROOT_PASSWORD="$(pwgen -1 32)"
+		export MYSQL_ROOT_PASSWORD="$(echo -n $MYSQL_DATABASE | md5sum | awk '{ print $1 }')"
 		mysql_note "GENERATED ROOT PASSWORD: $MYSQL_ROOT_PASSWORD"
 	fi
 	# Sets root password and creates root users for non-localhost hosts
@@ -342,13 +345,16 @@ _main() {
 			mysql_note "MySQL init process done. Ready for start up."
 			echo
 		else
-			DATABASE_ALREADY_EXISTS=''
+			if [ -n "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
+				export MYSQL_ROOT_PASSWORD="$(echo -n $MYSQL_DATABASE | md5sum | awk '{ print $1 }')"
+				mysql_note "GENERATED ROOT PASSWORD: $MYSQL_ROOT_PASSWORD"
+			fi
 			mysql_note "Starting temporary server"
 			docker_temp_server_start "$@"
 			mysql_note "Temporary server started."
-			
+
 			docker_process_update_files /docker-entrypoint-upgrade.d/*
-			
+
 			mysql_note "Stopping temporary server"
 			docker_temp_server_stop
 			mysql_note "Temporary server stopped"
