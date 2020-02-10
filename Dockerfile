@@ -21,9 +21,7 @@ RUN apt-get update -qqy \
   && cp ./schema/*.sql /docker-entrypoint-initdb.d/ \
   && chmod +x /tmp/prepare-upgrade.sh && /tmp/prepare-upgrade.sh \
   && chmod a+rw -R /docker-entrypoint-initdb.d/ /docker-entrypoint-upgrade.d/ \
-  && head -n -1 /usr/local/bin/docker-entrypoint.sh > /usr/local/bin/docker-entrypoint.sh.tmp \
-  && cat /tmp/docker-entrypoint-patch.sh >> /usr/local/bin/docker-entrypoint.sh.tmp \
-  && mv /usr/local/bin/docker-entrypoint.sh.tmp /usr/local/bin/docker-entrypoint.sh \
+  && cat /tmp/docker-entrypoint-patch.sh > /usr/local/bin/docker-entrypoint.sh \
   && chmod +x /usr/local/bin/docker-entrypoint.sh \
   && apt-get --auto-remove -y purge curl \
   && rm -rf /tmp/* \
