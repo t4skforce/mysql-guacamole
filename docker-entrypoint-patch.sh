@@ -72,9 +72,9 @@ docker_process_init_files() {
 # process update db files, based on file extensions
 docker_process_update_files() {
 	# mysql here for backwards compatibility "${mysql[@]}"
-        mysql=( docker_process_sql --dont-use-mysql-root-password )
+        mysql=( docker_process_sql )
 
-	docker_process_sql --dont-use-mysql-root-password <<<"CREATE TABLE IF NOT EXISTS \`auto_updates\` (\`hash\` varchar(32) NOT NULL UNIQUE) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+	docker_process_sql <<<"CREATE TABLE IF NOT EXISTS \`auto_updates\` (\`hash\` varchar(32) NOT NULL UNIQUE) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
 
 	echo
         local f
@@ -83,11 +83,11 @@ docker_process_update_files() {
 		if [ $(docker_process_sql <<<"SELECT count(1) FROM auto_updates WHERE hash='${md5}';" | tail -1) -eq 0 ]; then
 		        case "$f" in
 		                *.sh)     mysql_note "$0: running $f"; . "$f" ;;
-		                *.sql)    mysql_note "$0: running $f"; docker_process_sql --dont-use-mysql-root-password < "$f"; echo ;;
-		                *.sql.gz) mysql_note "$0: running $f"; gunzip -c "$f" | docker_process_sql --dont-use-mysql-root-password; echo ;;
+		                *.sql)    mysql_note "$0: running $f"; docker_process_sql < "$f"; echo ;;
+		                *.sql.gz) mysql_note "$0: running $f"; gunzip -c "$f" | docker_process_sql; echo ;;
 		                *)        mysql_warn "$0: ignoring $f" ;;
 		        esac
-			docker_process_sql --dont-use-mysql-root-password <<<"INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" &> /dev/null
+			docker_process_sql <<<"INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" &> /dev/null
                 fi
                 echo
         done
@@ -196,6 +196,12 @@ docker_setup_env() {
 	if [ -d "$DATADIR/mysql" ]; then
 		DATABASE_ALREADY_EXISTS='true'
 	fi
+	
+	# Generate random root password
+	if [ -n "$MYSQL_RANDOM_ROOT_PASSWORD" -a -z "$MYSQL_ROOT_PASSWORD" ]; then
+		export MYSQL_ROOT_PASSWORD=$(echo -n "${MYSQL_USER}:${MYSQL_DATABASE}:${MYSQL_PASSWORD}" | sha1sum | awk '{ print $1 }')
+		mysql_note "GENERATED MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD"
+	fi
 }
 
 # Execute sql script, passed via stdin
@@ -225,11 +231,6 @@ docker_setup_db() {
 			| sed 's/Local time zone must be set--see zic manual page/FCTY/' \
 			| docker_process_sql --dont-use-mysql-root-password --database=mysql
 			# tell docker_process_sql to not use MYSQL_ROOT_PASSWORD since it is not set yet
-	fi
-	# Generate random root password
-	if [ -n "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
-		export MYSQL_ROOT_PASSWORD="$(echo -n $MYSQL_DATABASE | md5sum | awk '{ print $1 }')"
-		mysql_note "GENERATED ROOT PASSWORD: $MYSQL_ROOT_PASSWORD"
 	fi
 	# Sets root password and creates root users for non-localhost hosts
 	local rootCreate=
@@ -345,10 +346,6 @@ _main() {
 			mysql_note "MySQL init process done. Ready for start up."
 			echo
 		else
-			if [ -n "$MYSQL_RANDOM_ROOT_PASSWORD" ]; then
-				export MYSQL_ROOT_PASSWORD="$(echo -n $MYSQL_DATABASE | md5sum | awk '{ print $1 }')"
-				mysql_note "GENERATED ROOT PASSWORD: $MYSQL_ROOT_PASSWORD"
-			fi
 			mysql_note "Starting temporary server"
 			docker_temp_server_start "$@"
 			mysql_note "Temporary server started."
