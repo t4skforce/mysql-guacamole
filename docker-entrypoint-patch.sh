@@ -72,9 +72,9 @@ docker_process_init_files() {
 # process update db files, based on file extensions
 docker_process_update_files() {
 	# mysql here for backwards compatibility "${mysql[@]}"
-        mysql=( docker_process_sql )
+        mysql=( docker_process_sql --dont-use-mysql-root-password )
 
-	docker_process_sql <<<"CREATE TABLE IF NOT EXISTS \`auto_updates\` (\`hash\` varchar(32) NOT NULL UNIQUE) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+	docker_process_sql --dont-use-mysql-root-password <<<"CREATE TABLE IF NOT EXISTS \`auto_updates\` (\`hash\` varchar(32) NOT NULL UNIQUE) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
 
 	echo
         local f
@@ -83,11 +83,11 @@ docker_process_update_files() {
 		if [ $(docker_process_sql <<<"SELECT count(1) FROM auto_updates WHERE hash='${md5}';" | tail -1) -eq 0 ]; then
 		        case "$f" in
 		                *.sh)     mysql_note "$0: running $f"; . "$f" ;;
-		                *.sql)    mysql_note "$0: running $f"; docker_process_sql < "$f"; echo ;;
-		                *.sql.gz) mysql_note "$0: running $f"; gunzip -c "$f" | docker_process_sql; echo ;;
+		                *.sql)    mysql_note "$0: running $f"; docker_process_sql --dont-use-mysql-root-password < "$f"; echo ;;
+		                *.sql.gz) mysql_note "$0: running $f"; gunzip -c "$f" | docker_process_sql --dont-use-mysql-root-password; echo ;;
 		                *)        mysql_warn "$0: ignoring $f" ;;
 		        esac
-			docker_process_sql <<<"INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" &> /dev/null
+			docker_process_sql --dont-use-mysql-root-password <<<"INSERT INTO \`auto_updates\` (\`hash\`) VALUES ('${md5}');" &> /dev/null
                 fi
                 echo
         done
