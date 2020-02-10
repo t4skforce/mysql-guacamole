@@ -336,7 +336,6 @@ _main() {
 
 			docker_setup_db
 			docker_process_init_files /docker-entrypoint-initdb.d/*
-			docker_process_update_files /docker-entrypoint-upgrade.d/*
 
 			mysql_note "Stopping temporary server"
 			docker_temp_server_stop
@@ -346,6 +345,7 @@ _main() {
 			mysql_note "MySQL init process done. Ready for start up."
 			echo
 		else
+			DATABASE_ALREADY_EXISTS=''
 			mysql_note "Starting temporary server"
 			docker_temp_server_start "$@"
 			mysql_note "Temporary server started."
@@ -357,7 +357,7 @@ _main() {
 			mysql_note "Temporary server stopped"
 
 			echo
-			mysql_note "MySQL init process done. Ready for start up."
+			mysql_note "MySQL update process done. Ready for start up."
 			echo
 		fi
 	fi
