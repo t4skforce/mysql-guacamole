@@ -26,4 +26,6 @@ RUN apt-get update -qqy \
   && chmod +x /usr/local/bin/docker-entrypoint.sh \
   && apt-get --auto-remove -y purge curl \
   && rm -rf /tmp/* \
-  && rm -rf /var/lib/apt/lists/*
+            /var/lib/apt/lists/* \
+            /var/log/dpkg.log \
+            /var/log/apt/*
