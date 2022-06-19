@@ -5,7 +5,7 @@ FROM mariadb:10
 ########################################
 ARG VERSION="1.4.0"
 ARG DOWNLOADURL="https://github.com/apache/guacamole-client/archive/1.4.0.tar.gz"
-ARG BUILD_DATE="2022-06-12T09:23:06Z"
+ARG BUILD_DATE="2022-06-19T09:09:23Z"
 ########################################
 
 ARG DEBIAN_FRONTEND=noninteractive
