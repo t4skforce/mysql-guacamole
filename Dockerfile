@@ -3,8 +3,8 @@ FROM mariadb:10
 ########################################
 #               Build                  #
 ########################################
-ARG VERSION="1.4.0"
-ARG DOWNLOADURL="https://github.com/apache/guacamole-client/archive/1.4.0.tar.gz"
+ARG VERSION="1.5.0"
+ARG DOWNLOADURL="https://github.com/apache/guacamole-client/archive/1.5.0.tar.gz"
 ARG BUILD_DATE="2023-02-12T10:09:07Z"
 ########################################
 
